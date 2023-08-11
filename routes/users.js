@@ -33,7 +33,7 @@ router.route('/signup')
 .post( async (req, res) => {
   const { email, password } = req.body // destructures req.body; assigns email and password attributes in req.body to email and password variable
   if (!email || !password) {
-    return res.status(400).send({ error: 'Email and password are required.' });
+    return res.status(400).send({ error: 'Email and password are required.' })
   }
   try {
     const existingUser = await db.promise().query(`SELECT * FROM users WHERE email = '${email}'`)

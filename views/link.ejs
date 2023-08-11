@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Plaid Link</title>
+  </head>
+  <body>
+     <button id="openPlaidLink">Link Account</button>
+     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+     <script type="text/javascript">
+        document.getElementById('openPlaidLink').addEventListener('click', async () => {
+          try {
+            const response = await fetch('/getLinkToken')
+            const data = await response.json()
+            const link_token = data.link_token
+            const config = {
+              token: link_token,
+              onSuccess: async (public_token, metadata) => {
+               await fetch("/exchangePublicToken",  {
+                 method: 'POST',
+                 headers: {
+                   'Content-Type': 'application/json'
+                 },
+                  body: JSON.stringify({
+                   public_token: public_token
+                  })
+                })
+              },
+              onExit: (error, metadata) => {
+                console.log('Exit:', error, metadata)
+              }
+            };
+            const handler = Plaid.create(config)
+            handler.open()
+          } catch (error) {
+              console.log('Error')
+          }
+        });
+     </script>
+  </body>
+</html>

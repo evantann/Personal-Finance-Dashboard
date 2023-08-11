@@ -1,0 +1,8 @@
+# Ignore .env files
+*.env
+
+# Ignore database credentials
+database.js
+
+# Ignore node_modules
+node_modules/
