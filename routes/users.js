@@ -11,8 +11,8 @@ router.route('/')
   const { email, password } = req.body
   try {
     const results = await db.promise().query(`SELECT email, password FROM users WHERE email = '${email}' LIMIT 1`)
-    if (results.length === 0) {
-      return res.status(401).send({ msg: 'Invalid credentials.' })
+    if (results.length != 1) {
+      return res.status(401).send({ msg: 'Invalid email.' })
     }
     const { password: hash } = results[0][0] // destruct password attribute from results[0][0] and assigned to hash variable
     const isValid = await bcrypt.compare(password, hash)

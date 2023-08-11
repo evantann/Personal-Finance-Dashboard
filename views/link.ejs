@@ -11,13 +11,13 @@
      <script type="text/javascript">
         document.getElementById('openPlaidLink').addEventListener('click', async () => {
           try {
-            const response = await fetch('/getLinkToken')
+            const response = await fetch('api/getLinkToken')
             const data = await response.json()
             const link_token = data.link_token
             const config = {
               token: link_token,
               onSuccess: async (public_token, metadata) => {
-               await fetch("/exchangePublicToken",  {
+               await fetch("api/exchangePublicToken",  {
                  method: 'POST',
                  headers: {
                    'Content-Type': 'application/json'
