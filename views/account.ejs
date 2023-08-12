@@ -7,23 +7,27 @@
 </head>
 <body>
   <h1>Finance Dashboard</h1>
-  <div id="output"></div>
+  <div id="transactions"></div>
   <script>
     const access_token = '<%= access_token %>'
+
     async function fetchData() {
-      const response = await fetch(`/api/getTransactions?access_token=${access_token}`);
-      const transactionData = await response.json();
-      const simplifiedData = transactionData.transactions.map((item) => {
+      const response = await fetch(`/api/getTransactions?access_token=${access_token}`)
+      const transaction_data = await response.json()
+      const simplifiedData = transaction_data.transactions.map((item) => {
         return {
           date: item.date,
           name: item.name,
           amount: `$${item.amount.toFixed(2)}`,
           categories: item.category.join(", "),
-        };
-      });
-      document.querySelector("#output").textContent = JSON.stringify(simplifiedData, null, 2);
+        }
+      })
+
+      document.querySelector("#transactions").textContent = JSON.stringify(simplifiedData, null, 2)
     }
-    fetchData();
+
+    fetchData()
+    
   </script>
 </body>
 </html>

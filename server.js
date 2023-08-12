@@ -8,7 +8,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use("/users", userRouter)
 app.use("/api", apiRouter)
+app.use(express.static("public"));
 
 app.listen(8080, () => {
-    console.log('Head on over to http://localhost:8080/users')
+    console.log('Head on over to http://localhost:8080')
 })

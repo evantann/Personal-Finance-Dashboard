@@ -3,11 +3,8 @@ const router = express.Router()
 const db = require('../database')
 const bcrypt = require("bcrypt")
 
+// Users sign in
 router.route('/')
-.get((req, res) => {
-  res.render('index')
-})
-
 .post( async (req, res) => {
   const { email, password } = req.body
   try {
@@ -15,7 +12,7 @@ router.route('/')
     if (results[0].length != 1) {
       return res.status(401).json({ msg: 'Invalid email.' })
     }
-    const { password: hash } = results[0][0] // destruct password attribute from results[0][0] and assigned to hash variable
+    const { password: hash } = results[0][0]
     const { access_token : access_token} = results[0][0]
     const isValid = await bcrypt.compare(password, hash)
     if (isValid) {
@@ -28,26 +25,27 @@ router.route('/')
   }
 })
 
+// New users sign up
 router.route('/signup')
-.get((req, res) => {
-  res.render('signup')
-})
 .post( async (req, res) => {
-  const { email, password } = req.body // destructures req.body; assigns email and password attributes in req.body to email and password variable
+  const { email, password } = req.body
   if (!email || !password) {
-    return res.status(400).send({ error: 'Email and password are required.' })
+    return res.status(400).json({ error: 'Email and password are required.' })
   }
   try {
     const existingUser = await db.promise().query(`SELECT * FROM users WHERE email = '${email}'`)
-    if (existingUser.length > 0) {
-       return res.status(409).send({ msg: 'User already exists.' })
+    if (existingUser[0].length > 0) {
+       return res.status(409).json({ msg: 'User already exists.' })
     }
     const hash = await bcrypt.hash(password, 10) // generates salt and hash
-    await db.promise().query(`INSERT INTO users VALUES('${email}', '${hash}')`)
-    res.status(201).send({ msg: 'Created User' })
+    await db.promise().query(`INSERT INTO users(email, password) VALUES('${email}', '${hash}')`)
+    const results = await db.promise().query(`SELECT userid from users WHERE email = '${email}'`)
+    const {userid : user_id} = results[0][0]
+    res.render('link', { user_id })
   } catch (err) {
-    res.status(500).send({ msg: 'Internal Server Errror'})
+    res.status(500).json({ msg: 'Internal Server Errror'})
   }
 })
+
 
 module.exports = router

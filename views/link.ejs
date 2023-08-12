@@ -11,6 +11,7 @@
      <script type="text/javascript">
         document.getElementById('openPlaidLink').addEventListener('click', async () => {
           try {
+            const user_id = '<%= user_id %>'
             const response = await fetch('/api/getLinkToken')
             const data = await response.json()
             const link_token = data.link_token
@@ -23,20 +24,22 @@
                    'Content-Type': 'application/json'
                  },
                   body: JSON.stringify({
-                   public_token: public_token
+                   public_token: public_token,
+                   user_id : user_id
                   })
                 })
+                window.location.href = '/index.html'
               },
               onExit: (error, metadata) => {
                 console.log('Exit:', error, metadata)
               }
-            };
+            }
             const handler = Plaid.create(config)
             handler.open()
           } catch (error) {
               console.log('Error')
           }
-        });
+        })
      </script>
   </body>
 </html>
