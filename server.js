@@ -9,4 +9,6 @@ app.use(express.json())
 app.use("/users", userRouter)
 app.use("/api", apiRouter)
 
-app.listen(8080)
+app.listen(8080, () => {
+    console.log('Head on over to http://localhost:8080/users')
+})

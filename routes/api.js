@@ -4,6 +4,7 @@ const db = require('../database')
 const plaid = require('plaid')
 const dotenv = require('dotenv')
 const path = require('path')
+const moment = require('moment')
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
@@ -67,12 +68,25 @@ try {
     const accessToken = response.data.access_token;
     const itemId = response.data.item_id;
     console.log(accessToken, itemId)
-    // await db.promise().query(`INSERT INTO users VALUES('${accessToken}')`)
     res.status(200).json({ success: true });
 } catch (error) {
     console.error('Error exchanging public token:', error);
     res.status(500).json({ success: false, error: 'Error exchanging public token' });
 }
 });
+
+router.route("/getTransactions").get( async (req, res) => {
+    const access_token = req.query.access_token
+    const startDate = moment().subtract(30, "days").format("YYYY-MM-DD")
+    const endDate = moment().format("YYYY-MM-DD")
+
+    const transactionResponse = await plaidClient.transactionsGet({
+        access_token: access_token,
+        start_date: startDate,
+        end_date: endDate,
+      })
+
+    res.json(transactionResponse.data)
+})
 
 module.exports = router

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account</title>
+</head>
+<body>
+  <h1>Finance Dashboard</h1>
+  <div id="output"></div>
+  <script>
+    const access_token = '<%= access_token %>'
+    async function fetchData() {
+      const response = await fetch(`/api/getTransactions?access_token=${access_token}`);
+      const transactionData = await response.json();
+      const simplifiedData = transactionData.transactions.map((item) => {
+        return {
+          date: item.date,
+          name: item.name,
+          amount: `$${item.amount.toFixed(2)}`,
+          categories: item.category.join(", "),
+        };
+      });
+      document.querySelector("#output").textContent = JSON.stringify(simplifiedData, null, 2);
+    }
+    fetchData();
+  </script>
+</body>
+</html>

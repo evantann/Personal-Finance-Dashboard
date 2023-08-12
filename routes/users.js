@@ -7,22 +7,24 @@ router.route('/')
 .get((req, res) => {
   res.render('index')
 })
+
 .post( async (req, res) => {
   const { email, password } = req.body
   try {
-    const results = await db.promise().query(`SELECT email, password FROM users WHERE email = '${email}' LIMIT 1`)
-    if (results.length != 1) {
-      return res.status(401).send({ msg: 'Invalid email.' })
+    const results = await db.promise().query(`SELECT email, password, access_token FROM users WHERE email = '${email}' LIMIT 1`)
+    if (results[0].length != 1) {
+      return res.status(401).json({ msg: 'Invalid email.' })
     }
     const { password: hash } = results[0][0] // destruct password attribute from results[0][0] and assigned to hash variable
+    const { access_token : access_token} = results[0][0]
     const isValid = await bcrypt.compare(password, hash)
     if (isValid) {
-      res.status(200).send({ message: 'Login successful.' })
+      res.render('account', { access_token })
     } else {
-      res.status(401).send({ error: 'Invalid password.' })
+      res.status(401).json({ error: 'Invalid password.' })
     }
   } catch (error) {
-    res.status(500).send({ msg: 'Internal Server Error' })
+    res.status(500).json({ msg: 'Internal Server Error' })
   }
 })
 
