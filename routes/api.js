@@ -22,33 +22,6 @@ const plaidClient = new plaid.PlaidApi(config)
 
 
 // Generates link token
-async function getLinkToken() {
-const request = {
-    user: {
-    client_user_id: 'test123'
-    },
-    client_name: 'Personal Finance Dashboard',
-    products: ['transactions'],
-    country_codes: ['US'],
-    language: 'en',
-    account_filters: {
-        depository: {
-            account_subtypes: ['checking']
-        },
-        credit: {
-            account_subtypes: ['credit card']
-        }
-    },
-}
-try {
-    const response = await plaidClient.linkTokenCreate(request)
-    return response.data.link_token
-} catch (error) {
-    console.error('Error creating link token:', error)
-    throw new Error('Error creating link token.')
-    }
-}
-
 router.route('/getLinkToken').get( async (req, res) => {
 try {
     const linkToken = await getLinkToken()
@@ -58,6 +31,7 @@ try {
     res.status(500).json({ error: 'Error creating link token.' })
 }
 })
+
 
 // Exchange public token for access token
 router.route('/exchangePublicToken').post( async (req, res) => {
@@ -90,6 +64,34 @@ router.route("/getTransactions").get( async (req, res) => {
 
     res.json(transactions.data)
 })
+
+
+async function getLinkToken() {
+const request = {
+    user: {
+    client_user_id: 'test123'
+    },
+    client_name: 'Personal Finance Dashboard',
+    products: ['transactions'],
+    country_codes: ['US'],
+    language: 'en',
+    account_filters: {
+        depository: {
+            account_subtypes: ['checking']
+        },
+        credit: {
+            account_subtypes: ['credit card']
+        }
+    },
+}
+try {
+    const response = await plaidClient.linkTokenCreate(request)
+    return response.data.link_token
+} catch (error) {
+    console.error('Error creating link token:', error)
+    throw new Error('Error creating link token.')
+    }
+}
 
 
 module.exports = router

@@ -9,7 +9,7 @@
      <button id="openPlaidLink">Link Account</button>
      <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
      <script type="text/javascript">
-        document.getElementById('openPlaidLink').addEventListener('click', async () => {
+        async function startLink() {
           try {
             const user_id = '<%= user_id %>'
             const response = await fetch('/api/getLinkToken')
@@ -39,7 +39,8 @@
           } catch (error) {
               console.log('Error')
           }
-        })
+        }
+        document.getElementById('openPlaidLink').addEventListener('click', startLink)
      </script>
   </body>
 </html>
