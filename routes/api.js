@@ -53,18 +53,33 @@ try {
 })
 
 
-router.route("/getTransactions").get( async (req, res) => {
-    const access_token = req.query.access_token
-    const start_date = moment().subtract(30, "days").format("YYYY-MM-DD")
-    const end_date = moment().format("YYYY-MM-DD")
-    const transactions = await plaidClient.transactionsGet({
-        access_token: access_token,
-        start_date: start_date,
-        end_date: end_date,
-      })
-
-    res.json(transactions.data)
+router.route('/transactionsSync').get( async (req, res) => {
+    try {
+        const user_id = req.query.user_id
+        results = await db.getItemByUserID(user_id)
+        const { item_id : item_id } = results[0][0]
+        await syncTransactions(item_id, user_id)
+    } catch (error) {
+        console.error('Cannot get transactions')
+        res.json({ error: 'Cannot get transactions' })
+    }
 })
+
+
+async function syncTransactions(item_id, user_id) {
+    const summary = { added: 0, removed: 0, modified: 0 }
+    // Get last transaction cursor
+    results = await db.getItemByUserID(user_id)
+    const {
+        access_token: access_token,
+        transaction_cursor: transaction_cursor
+    } = results[0][0]
+    const allData = await fetchNewSyncData(access_token, transaction_cursor)
+    allData.added.map((txnObj) => {
+        console.log(`${JSON.stringify(txnObj)}`)
+    })
+    return summary
+}
 
 
 async function getLinkToken() {
@@ -92,6 +107,36 @@ try {
     console.error('Error creating link token:', error)
     throw new Error('Error creating link token.')
     }
+}
+
+
+async function fetchNewSyncData(access_token, initial_cursor) {
+    let keepGoing = false
+    const allData = {
+        added: [],
+        modified: [],
+        removed: [],
+        nextCursor: initial_cursor
+    }
+    do {
+        const results = await plaidClient.transactionsSync({
+            access_token: access_token,
+            cursor: allData.nextCursor,
+            options: {
+                include_personal_finance_category: true
+            }
+        })
+        const newData = results.data
+        allData.added = allData.added.concat(newData.added)
+        allData.modified = allData.modified.concat(newData.modified)
+        allData.removed = allData.removed.concat(newData.removed)
+        allData.nextCursor = newData.next_cursor
+        keepGoing = newData.has_more
+        console.log(
+            `Added: ${newData.added.length} Modified: ${newData.modified.length} Removed: ${newData.removed.length}`
+        )
+    } while (keepGoing === true)
+    return allData
 }
 
 

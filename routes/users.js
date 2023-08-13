@@ -3,6 +3,7 @@ const router = express.Router()
 const db = require('../database')
 const bcrypt = require("bcrypt")
 
+
 // Users sign in
 router.route('/')
 .post( async (req, res) => {
@@ -16,16 +17,16 @@ router.route('/')
     const { user_id : user_id} = results[0][0]
     const isValid = await bcrypt.compare(password, hash)
     if (isValid) {
-      const item = await db.getItemByUserID(user_id)
-      const {access_token : access_token } = item[0][0]
-      res.render('account', { access_token })
+      res.render('account', { user_id })
     } else {
       res.status(401).json({ error: 'Invalid password.' })
     }
   } catch (error) {
+    console.error('Internal Server Error', error)
     res.status(500).json({ error: 'Internal Server Error' })
   }
 })
+
 
 // New users sign up
 router.route('/signup')
@@ -41,10 +42,11 @@ router.route('/signup')
     }
     const hash = await bcrypt.hash(password, 10) // generates salt and hash
     await db.createUser(email, hash)
-    const results = await db.getUserID(email)
-    const {user_id : user_id} = results[0][0]
+    const results = await db.getUserByEmail(email)
+    const { user_id : user_id } = results[0][0]
     res.render('link', { user_id })
-  } catch (err) {
+  } catch (error) {
+    console.error('Internal Server Error', error)
     res.status(500).json({ error: 'Internal Server Errror'})
   }
 })

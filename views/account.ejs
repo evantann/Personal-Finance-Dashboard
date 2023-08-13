@@ -9,10 +9,9 @@
   <h1>Finance Dashboard</h1>
   <div id="transactions"></div>
   <script>
-    const access_token = '<%= access_token %>'
-
+    const user_id = '<%= user_id %>'
     async function fetchData() {
-      const response = await fetch(`/api/getTransactions?access_token=${access_token}`)
+      const response = await fetch(`/api/transactionsSync?user_id=${user_id}`)
       const transaction_data = await response.json()
       const simplifiedData = transaction_data.transactions.map((item) => {
         return {
