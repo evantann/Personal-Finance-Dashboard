@@ -43,11 +43,12 @@ router.route('/exchangePublicToken').post( async (req, res) => {
 try {
     const response = await plaidClient.itemPublicTokenExchange(request)
     const access_token = response.data.access_token
-    await db.promise().query(`UPDATE users SET access_token = '${access_token}' WHERE userid = '${user_id}'`)
-    res.status(200).json({ success: true })
+    const item_id = response.data.item_id
+    await db.createItem(user_id, access_token, item_id)
+    res.status(200).json({ msg: 'Bank account connected!' })
 } catch (error) {
     console.error('Error exchanging public token:', error)
-    res.status(500).json({ success: false, error: 'Error exchanging public token' })
+    res.status(500).json({ error: 'Error exchanging public token' })
 }
 })
 
