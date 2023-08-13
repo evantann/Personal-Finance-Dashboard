@@ -11,5 +11,5 @@ app.use("/api", apiRouter)
 app.use(express.static("public"));
 
 app.listen(8080, () => {
-    console.log('Head on over to http://localhost:8080')
+    console.log('View your financial dashboard at http://localhost:8080')
 })
