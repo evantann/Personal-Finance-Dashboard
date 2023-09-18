@@ -15,8 +15,8 @@ Back End: Node.js with Express and Plaid library for API integration and real-ti
 
 Challenges and Solutions:
 - This is my first personal project I've ever created. Not only is it my first project, but I had just learned Express and SQL less than a month ago. Having no experience and little to no guidance,
-  I learned a lot from pure trial and error. Despite this project's straightorwardness, I've spent over 40+ hours on this "simple" project. Often times I was lost and doubted whether my goal was even possible.
-  Through persistence, however, I accomplished my goal and proved that I am capable of creating meaninful projects if I am determined enough.
+  I learned a lot from pure trial and error.
+  Through persistence, however, I accomplished my goal and gained valuable insight into the web development workflow.
 - I overcame these challenges by taking advantage the resources provided to me. I spent hours reading documentation and studying code form other developers. I posted questions on Stack Overflow and even contacted Plaid API support.
   Reading other people's code gave me so much insight and is truely where I learned the most. Not only did I improve my technical skills but I also learned the importance of code organization and project design.
   
