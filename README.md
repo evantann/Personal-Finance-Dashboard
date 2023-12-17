@@ -22,9 +22,9 @@
 - Understand the logic and technology required to build a full-stack project.
 - Organized code leads to a smoother development process.
 
-Skills Demonstrated:
+**Skills Demonstrated:**
 Full-stack development, data visualization, database management, code organization, problem-solving, ability to learn new software quickly, ability to self-learn, version control,
 identify and debug errors, development process timeline.
 
-Relevance to the Role:
+**Relevance to the Role:**
 This project showcases my ability to design and develop practical applications, incorporating full stack technologies. It highlights my problem-solving skills and dedication to learn and apply knowledge.
