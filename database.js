@@ -1,5 +1,6 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2')
 const dotenv = require('dotenv')
+const { transactionObj } = require("./transactionObject")
 
 dotenv.config()
 
@@ -19,16 +20,36 @@ async function getItemByUserID(user_id) {
 }
 
 async function createUser(email, password) {
-    pool.promise().query('INSERT INTO users(email, password) VALUES(?, ?) LIMIT 1', [email, password])
+    pool.promise().query('INSERT INTO users(email, password) VALUES(?, ?)', [email, password])
 }
 
 async function createItem(user_id, access_token, item_id) {
-    pool.promise().query('INSERT INTO items(user_id, access_token, item_id) VALUES(?, ?, ?) LIMIT 1', [user_id, access_token, item_id])
+    pool.promise().query('INSERT INTO items(user_id, access_token, item_id) VALUES(?, ?, ?)', [user_id, access_token, item_id])
+}
+
+async function addTransaction(transactionObj) {
+    pool.promise().query('INSERT IGNORE INTO transactions(id, user_id, account_id, category, date, authorized_date, name, amount, currency_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+        transactionObj.id,
+        transactionObj.userId,
+        transactionObj.accountId,
+        transactionObj.category,
+        transactionObj.date,
+        transactionObj.authorizedDate,
+        transactionObj.name,
+        transactionObj.amount,
+        transactionObj.currencyCode
+    ]
+)}
+
+async function updateCursor(cursor, itemId) {
+    pool.promise().query('UPDATE items SET transaction_cursor = ? WHERE item_id = ?', [cursor, itemId])
 }
 
 module.exports = {
     getUserByEmail,
     getItemByUserID,
     createUser,
-    createItem
+    createItem,
+    addTransaction,
+    updateCursor
 }

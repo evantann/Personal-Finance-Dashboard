@@ -17,7 +17,7 @@ router.route('/')
     const { user_id : user_id} = results[0][0]
     const isValid = await bcrypt.compare(password, hash)
     if (isValid) {
-      res.render('account', { user_id })
+      res.render('dashboard', { user_id })
     } else {
       res.status(401).json({ error: 'Invalid password.' })
     }

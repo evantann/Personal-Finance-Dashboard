@@ -1,4 +1,4 @@
-class SimpleTransaction {
+class TransactionObj {
     constructor(
       id,
       userId,
@@ -23,16 +23,21 @@ class SimpleTransaction {
       this.pendingTransactionId = pendingTransactionId;
     }
   
-    /**
-     * Static factory method for creating the SimpleTransaction object
-     *
-     * @param {import("plaid").Transaction} txnObj The transaction object returned from the Plaid API
-     * @param {string} userId The userID
-     * @returns SimpleTransaction
-     */
-    static fromPlaidTransaction(txnObj, userId) {
-      // TODO: Fill this out
+
+    static createTransactionObject(txnObj, userId) {
+      return new TransactionObj(
+        txnObj.transaction_id,
+        userId,
+        txnObj.account_id,
+        txnObj.personal_finance_category.primary,
+        txnObj.date,
+        txnObj.authorized_date,
+        txnObj.merchant_name ?? txnObj.name,
+        txnObj.amount,
+        txnObj.iso_currency_code,
+        txnObj.pending_transaction_id
+      )
     }
   }
   
-  module.exports = { SimpleTransaction };
+  module.exports = { TransactionObj };
