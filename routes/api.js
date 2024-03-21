@@ -4,7 +4,7 @@ const db = require('../database')
 const plaid = require('plaid')
 const dotenv = require('dotenv')
 const path = require('path')
-const moment = require('moment')
+const { TransactionObj } = require('../transactionObject')
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') })
 
@@ -58,27 +58,52 @@ router.route('/transactionsSync').get( async (req, res) => {
         const user_id = req.query.user_id
         results = await db.getItemByUserID(user_id)
         const { item_id : item_id } = results[0][0]
-        await syncTransactions(item_id, user_id)
+        response = await syncTransactions(item_id, user_id)
+        res.json(response)
     } catch (error) {
         console.error('Cannot get transactions')
         res.json({ error: 'Cannot get transactions' })
     }
 })
 
-
+// converts transactions to txnObj then adds to database
 async function syncTransactions(item_id, user_id) {
     const summary = { added: 0, removed: 0, modified: 0 }
-    // Get last transaction cursor
     results = await db.getItemByUserID(user_id)
     const {
         access_token: access_token,
         transaction_cursor: transaction_cursor
     } = results[0][0]
     const allData = await fetchNewSyncData(access_token, transaction_cursor)
-    allData.added.map((txnObj) => {
-        console.log(`${JSON.stringify(txnObj)}`)
+
+    allData.added.map(async (txnObj) => {
+        const result = await db.addTransaction(
+            TransactionObj.createTransactionObject(txnObj, user_id)
+        )
+        if (result) {
+            summary.added += result.changes
+        }
     })
-    return summary
+
+    allData.modified.map(async (txnObj) => {
+        const result = await db.modifyTransaction(
+            TransactionObj.createTransactionObject(txnObj, userId)
+        )
+        if (result) {
+            summary.modified += result.changes
+        }
+    })
+
+    allData.removed.map(async (txnObj) => {
+        const result = await db.markTransactionAsRemoved(txnObj.transaction_id)
+        if (result) {
+            summary.removed += result.changes
+        }
+    })
+
+    await db.updateCursor(allData.nextCursor, item_id);
+
+    return allData
 }
 
 
@@ -109,9 +134,9 @@ try {
     }
 }
 
-
+// calls transactionsSync() to get latest transactions
 async function fetchNewSyncData(access_token, initial_cursor) {
-    let keepGoing = false
+    let keepGoing = true
     const allData = {
         added: [],
         modified: [],
@@ -132,9 +157,6 @@ async function fetchNewSyncData(access_token, initial_cursor) {
         allData.removed = allData.removed.concat(newData.removed)
         allData.nextCursor = newData.next_cursor
         keepGoing = newData.has_more
-        console.log(
-            `Added: ${newData.added.length} Modified: ${newData.modified.length} Removed: ${newData.removed.length}`
-        )
     } while (keepGoing === true)
     return allData
 }

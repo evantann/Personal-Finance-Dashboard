@@ -13,16 +13,7 @@
     async function fetchData() {
       const response = await fetch(`/api/transactionsSync?user_id=${user_id}`)
       const transaction_data = await response.json()
-      const simplifiedData = transaction_data.transactions.map((item) => {
-        return {
-          date: item.date,
-          name: item.name,
-          amount: `$${item.amount.toFixed(2)}`,
-          categories: item.category.join(", "),
-        }
-      })
-
-      document.querySelector("#transactions").textContent = JSON.stringify(simplifiedData, null, 2)
+      document.querySelector("#transactions").textContent = JSON.stringify(transaction_data)
     }
 
     fetchData()
