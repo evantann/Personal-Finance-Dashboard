@@ -8,7 +8,6 @@ class TransactionObj {
       authorizedDate,
       name,
       amount,
-      currencyCode,
       pendingTransactionId
     ) {
       this.id = id;
@@ -19,7 +18,6 @@ class TransactionObj {
       this.authorizedDate = authorizedDate;
       this.name = name;
       this.amount = amount;
-      this.currencyCode = currencyCode;
       this.pendingTransactionId = pendingTransactionId;
     }
   
@@ -34,7 +32,6 @@ class TransactionObj {
         txnObj.authorized_date,
         txnObj.merchant_name ?? txnObj.name,
         txnObj.amount,
-        txnObj.iso_currency_code,
         txnObj.pending_transaction_id
       )
     }

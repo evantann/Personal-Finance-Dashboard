@@ -28,7 +28,7 @@ async function createItem(user_id, access_token, item_id) {
 }
 
 async function addTransaction(transactionObj) {
-    pool.promise().query('INSERT IGNORE INTO transactions(id, user_id, account_id, category, date, authorized_date, name, amount, currency_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+    pool.promise().query('INSERT IGNORE INTO transactions(id, user_id, account_id, category, date, authorized_date, name, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [
         transactionObj.id,
         transactionObj.userId,
         transactionObj.accountId,
@@ -36,8 +36,7 @@ async function addTransaction(transactionObj) {
         transactionObj.date,
         transactionObj.authorizedDate,
         transactionObj.name,
-        transactionObj.amount,
-        transactionObj.currencyCode
+        transactionObj.amount
     ]
 )}
 
