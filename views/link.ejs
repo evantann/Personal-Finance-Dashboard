@@ -12,7 +12,7 @@
         async function startLink() {
           try {
             const user_id = '<%= user_id %>'
-            const response = await fetch('/api/getLinkToken')
+            const response = await fetch('/token/getLinkToken')
             const data = await response.json()
             const link_token = data.link_token
             const config = {
