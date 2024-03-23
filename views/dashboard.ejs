@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Account</title>
-</head>
-<body>
-  <h1>Finance Dashboard</h1>
-  <div id="transactions"></div>
-  <script>
-    const user_id = '<%= user_id %>'
-    async function fetchData() {
-      const response = await fetch(`/api/transactionsSync?user_id=${user_id}`)
-      const transaction_data = await response.json()
-      document.querySelector("#transactions").textContent = JSON.stringify(transaction_data)
-    }
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Account Transactions</title>
+   </head>
+   <body onload="initViz();">
+      <h1>Personal Finance Dashboard</h1>
+      <div id="vizContainer" style="width:800px; height:700px;"></div>
+      <script type="text/javascript"
+	    src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
+      <script type="text/javascript">
+         function initViz() {
+            var containerDiv = document.getElementById("vizContainer"),
+                url = "https://public.tableau.com/views/TransactionsData_17111573218990/Sheet1?:language=en-US&publish=yes&:sid=&:display_count=n&:origin=viz_share_link",
+                options = {
+                    hideTabs: true,
+                    onFirstInteractive: function () {
+                        console.log("Run this code when the viz has finished loading.");
+                    }
+                };
 
-    fetchData()
-    
-  </script>
-</body>
+            var viz = new tableau.Viz(containerDiv, url, options);
+        }
+         
+      </script>
+   </body>
 </html>

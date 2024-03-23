@@ -19,6 +19,6 @@
     "plaid": "^15.2.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.1.0"
   }
 }
