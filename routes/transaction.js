@@ -4,14 +4,15 @@ const db = require('../database')
 const { plaidClient } = require('../plaid')
 const { TransactionObj } = require('../transactionObject')
 
-router.route('/transactionsSync').get( async (req, res) => {
+router.route('/transactionsSync').get(async (req, res) => {
     try {
-        const user_id = req.query.user_id
+        const user_id = req.session.user_id
         results = await db.getItemByUserID(user_id)
-        const { item_id : item_id } = results[0][0]
-        response = await syncTransactions(item_id, user_id)
-        res.json(response)
-    } catch (error) {
+        const { item_id: item_id } = results[0][0]
+        await syncTransactions(item_id, user_id)
+        response = await db.getAllTransactions(user_id)
+        res.json(response[0])
+        } catch (error) {
         console.error('Cannot get transactions')
         res.json({ error: 'Cannot get transactions' })
     }
@@ -75,6 +76,7 @@ async function fetchNewSyncData(access_token, initial_cursor) {
                 include_personal_finance_category: true
             }
         })
+        
         const newData = results.data
         allData.added = allData.added.concat(newData.added)
         allData.modified = allData.modified.concat(newData.modified)
@@ -84,6 +86,5 @@ async function fetchNewSyncData(access_token, initial_cursor) {
     } while (keepGoing === true)
     return allData
 }
-
 
 module.exports = router

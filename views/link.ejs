@@ -18,7 +18,7 @@
             const config = {
               token: link_token,
               onSuccess: async (public_token, metadata) => {
-               await fetch("/api/exchangePublicToken",  {
+               await fetch("/token/exchangePublicToken",  {
                  method: 'POST',
                  headers: {
                    'Content-Type': 'application/json'

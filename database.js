@@ -1,6 +1,5 @@
 const mysql = require('mysql2')
 const dotenv = require('dotenv')
-const { transactionObj } = require("./transactionObject")
 
 dotenv.config()
 
@@ -44,11 +43,16 @@ async function updateCursor(cursor, itemId) {
     pool.promise().query('UPDATE items SET transaction_cursor = ? WHERE item_id = ?', [cursor, itemId])
 }
 
+async function getAllTransactions(user_id) {
+    return pool.promise().query('SELECT * FROM transactions WHERE user_id = ?', [user_id])
+}
+
 module.exports = {
     getUserByEmail,
     getItemByUserID,
     createUser,
     createItem,
     addTransaction,
-    updateCursor
+    updateCursor,
+    getAllTransactions
 }
