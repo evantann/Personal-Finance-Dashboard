@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Account Transactions</title>
   </head>
-  <body onload="initViz();">
+  <body>
     <h1>Personal Finance Dashboard</h1>
     <div id="vizContainer" style="width: 800px; height: 700px"></div>
     <table class="transactions-table">
@@ -17,24 +17,27 @@
           <th>Date</th>
         </tr>
       </thead>
-      <tbody id="transactionsBody">
-      </tbody>
+      <tbody id="transactionsBody"></tbody>
     </table>
 
     <script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
     <script type="text/javascript">
-      function initViz() {
-        var containerDiv = document.getElementById("vizContainer"),
-          url =
-            "https://public.tableau.com/views/TransactionsData_17111573218990/Sheet1?:language=en-US&publish=yes&:sid=&:display_count=n&:origin=viz_share_link",
-          options = {
-            hideTabs: true,
-            onFirstInteractive: function () {
-              console.log("Run this code when the viz has finished loading.");
-            },
-          };
+      document.addEventListener('DOMContentLoaded', () => {
+        initViz();
+        fetchTransactionData();
+      });
 
-        var viz = new tableau.Viz(containerDiv, url, options);
+      function initViz() {
+        const containerDiv = document.getElementById("vizContainer");
+        const url = "https://public.tableau.com/views/TransactionsData_17111573218990/Sheet1?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link";
+        const options = {
+          hideTabs: true,
+          onFirstInteractive: function () {
+            console.log("Viz has finished loading.");
+          },
+        };
+
+        new tableau.Viz(containerDiv, url, options);
       }
 
       async function fetchTransactionData() {
@@ -51,30 +54,23 @@
         const tableBody = document.getElementById("transactionsBody");
         tableBody.innerHTML = "";
 
-        transactions.forEach(transaction => {
+        transactions.forEach(({ name, category, amount, date }) => {
           const row = document.createElement("tr");
 
-          const nameCell = document.createElement("td");
-          nameCell.textContent = transaction.name;
-          row.appendChild(nameCell);
-
-          const categoryCell = document.createElement("td");
-          categoryCell.textContent = transaction.category;
-          row.appendChild(categoryCell);
-
-          const amountCell = document.createElement("td");
-          amountCell.textContent = transaction.amount;
-          row.appendChild(amountCell);
-
-          const dateCell = document.createElement("td");
-          dateCell.textContent = transaction.date;
-          row.appendChild(dateCell);
+          row.appendChild(createCell(name));
+          row.appendChild(createCell(category));
+          row.appendChild(createCell(amount));
+          row.appendChild(createCell(date));
 
           tableBody.appendChild(row);
         });
       }
 
-      fetchTransactionData();
+      function createCell(content) {
+        const cell = document.createElement("td");
+        cell.textContent = content;
+        return cell;
+      }
     </script>
   </body>
 </html>

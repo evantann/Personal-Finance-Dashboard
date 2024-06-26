@@ -6,9 +6,10 @@ const { plaidClient } = require('../plaid')
 // Generates link token
 router.route('/getLinkToken').get( async (req, res) => {
     try {
-        const linkToken = await getLinkToken()
+        const user_id = req.session.user_id
+        const linkToken = await getLinkToken(user_id)
         res.status(200).json({ link_token: linkToken })
-    } catch (error) {
+    } catch (error) {   
         console.error('Error generating link token:', error)
         res.status(500).json({ error: 'Error creating link token.' })
     }
@@ -16,27 +17,25 @@ router.route('/getLinkToken').get( async (req, res) => {
 
 // Exchange public token for access token
 router.route('/exchangePublicToken').post( async (req, res) => {
-    const user_id = req.body.user_id
-    const public_token = req.body.public_token
-    const request = {
-    public_token: public_token
-}
-try {
-    const response = await plaidClient.itemPublicTokenExchange(request)
-    const access_token = response.data.access_token
-    const item_id = response.data.item_id
-    await db.createItem(user_id, access_token, item_id)
-    res.status(200).json({ msg: 'Bank account connected!' })
-} catch (error) {
-    console.error('Error exchanging public token:', error)
-    res.status(500).json({ error: 'Error exchanging public token' })
-}
+    try {
+        const user_id = req.session.user_id
+        const public_token = req.body.public_token
+        const request = { public_token: public_token }
+        const response = await plaidClient.itemPublicTokenExchange(request)
+        const access_token = response.data.access_token
+        const item_id = response.data.item_id
+        await db.createItem(user_id, access_token, item_id)
+        res.status(200).json({ msg: 'Bank account connected!' })
+    } catch (error) {
+        console.error('Error exchanging public token:', error)
+        res.status(500).json({ error: 'Error exchanging public token' })
+    }
 })
 
-async function getLinkToken() {
+async function getLinkToken(user_id) {
     const request = {
         user: {
-        client_user_id: 'test123'
+        client_user_id: user_id.toString()
         },
         client_name: 'Personal Finance Dashboard',
         products: ['transactions'],

@@ -1,55 +1,52 @@
-const express = require('express')
-const router = express.Router()
-const db = require('../database')
-const bcrypt = require("bcrypt")
-
+const express = require("express");
+const router = express.Router();
+const db = require("../database");
+const bcrypt = require("bcrypt");
 
 // Users sign in
-router.route('/')
-.post( async (req, res) => {
-  const { email, password } = req.body
+router.route("/").post(async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const results = await db.getUserByEmail(email)
+    const results = await db.getUserByEmail(email);
     if (results[0].length != 1) {
-      return res.status(401).json({ error: 'Invalid email.' })
+      return res.status(401).json({ error: "Invalid email." });
     }
-    const { password: hash } = results[0][0]
-    const { user_id : user_id} = results[0][0]
-    const isValid = await bcrypt.compare(password, hash)
+    const { password: hash } = results[0][0];
+    const { user_id } = results[0][0];
+    const isValid = await bcrypt.compare(password, hash);
     if (isValid) {
-      req.session.user_id = user_id
-      res.render('dashboard', { user_id })
+      req.session.user_id = user_id;
+      res.render("dashboard");
     } else {
-      res.status(401).json({ error: 'Invalid password.' })
+      res.status(401).json({ error: "Invalid password." });
     }
   } catch (error) {
-    console.error('Internal Server Error', error)
-    res.status(500).json({ error: 'Internal Server Error' })
+    console.error("Internal Server Error", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-})
-
+});
 
 // New users sign up
-router.route('/signup')
-.post( async (req, res) => {
-  const { email, password } = req.body
-  if (!email || !password) {
-    return res.status(400).json({ msg: 'Email and password are required.' })
-  }
+router.route("/signup").post( async (req, res) => {
   try {
-    const existingUser = await db.getUserByEmail(email)
-    if (existingUser[0].length > 0) {
-       return res.status(409).json({ msg: 'User already exists.' })
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required." });
     }
-    const hash = await bcrypt.hash(password, 10) // generates salt and hash
-    await db.createUser(email, hash)
-    const results = await db.getUserByEmail(email)
-    const { user_id : user_id } = results[0][0]
-    res.render('link', { user_id })
+    const existingUser = await db.getUserByEmail(email);
+    if (existingUser[0].length > 0) {
+      return res.status(409).json({ error: "User already exists." });
+    }
+    const hash = await bcrypt.hash(password, 10); // generates salt and hash
+    await db.createUser(email, hash);
+    const results = await db.getUserByEmail(email);
+    const { user_id } = results[0][0];
+    req.session.user_id = user_id;
+    res.render("link");
   } catch (error) {
-    console.error('Internal Server Error', error)
-    res.status(500).json({ error: 'Internal Server Errror'})
+    console.error("Internal Server Error", error);
+    res.status(500).json({ error: "Internal Server Errror" });
   }
-})
+});
 
-module.exports = router
+module.exports = router;

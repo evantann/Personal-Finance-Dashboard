@@ -1,3 +1,4 @@
+// transaction object class helps refactor code so that only a single variable is passed into the database functions
 class TransactionObj {
     constructor(
       id,
@@ -21,7 +22,7 @@ class TransactionObj {
       this.pendingTransactionId = pendingTransactionId;
     }
   
-
+    // method that feeds txnObj into constructor to create a new TransactionObj
     static createTransactionObject(txnObj, userId) {
       return new TransactionObj(
         txnObj.transaction_id,

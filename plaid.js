@@ -1,8 +1,4 @@
 const plaid = require('plaid')
-const dotenv = require('dotenv')
-const path = require('path')
-
-dotenv.config({ path: path.join(__dirname, '.', '.env') })
 
 const config = new plaid.Configuration({
     basePath: plaid.PlaidEnvironments.sandbox,
