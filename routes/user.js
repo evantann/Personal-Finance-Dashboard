@@ -5,11 +5,11 @@ const bcrypt = require("bcrypt");
 
 // Users sign in
 router.route("/").post(async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
   try {
-    const results = await db.getUserByEmail(email);
+    const results = await db.getUserByUsername(username);
     if (results[0].length != 1) {
-      return res.status(401).json({ error: "Invalid email." });
+      return res.status(401).json({ error: "Invalid username." });
     }
     const { password: hash } = results[0][0];
     const { user_id } = results[0][0];
@@ -29,17 +29,17 @@ router.route("/").post(async (req, res) => {
 // New users sign up
 router.route("/signup").post( async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required." });
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password are required." });
     }
-    const existingUser = await db.getUserByEmail(email);
+    const existingUser = await db.getUserByUsername(username);
     if (existingUser[0].length > 0) {
-      return res.status(409).json({ error: "User already exists." });
+      return res.status(409).json({ error: "Usename already exists." });
     }
     const hash = await bcrypt.hash(password, 10); // generates salt and hash
-    await db.createUser(email, hash);
-    const results = await db.getUserByEmail(email);
+    await db.addUser(username, hash);
+    const results = await db.getUserByUsername(username);
     const { user_id } = results[0][0];
     req.session.user_id = user_id;
     res.render("link");

@@ -37,7 +37,7 @@ async function syncTransactions(item_id, user_id, access_token, transaction_curs
     }
 
     for (const txnObj of allData.removed) {
-        const result = await db.markTransactionAsRemoved(txnObj.transaction_id);
+        const result = await db.deleteTransaction(txnObj.transaction_id);
         if (result) summary.removed += result.changes;
     }
 

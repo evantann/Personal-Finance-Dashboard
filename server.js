@@ -4,9 +4,6 @@ const session = require('express-session')
 const userRouter = require("./routes/user")
 const transactionRouter = require("./routes/transaction")
 const tokenRouter = require("./routes/token")
-const dotenv = require('dotenv')
-
-dotenv.config()
 
 app.set("view engine", "ejs")
 

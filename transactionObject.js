@@ -1,4 +1,4 @@
-// transaction object class helps refactor code so that only a single variable is passed into the database functions
+// transaction object class helps refactor code so that only a single variable is passed into the addTransaction function
 class TransactionObj {
     constructor(
       id,
