@@ -93,7 +93,7 @@ const populateAccountNames = async (accessToken) => {
     const itemId = acctsData.item.item_id;
     await Promise.all( // Promise.all() + map() is used to wait for all promises to resolve concurrently
       acctsData.accounts.map(async (acct) => {
-        await db.addAccount(acct.account_id, itemId, acct.name);
+        await db.addAccount(acct.account_id, itemId, acct.name, acct.subtype, acct.type);
       })
     );
   } catch (error) {

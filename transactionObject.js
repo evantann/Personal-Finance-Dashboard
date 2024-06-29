@@ -5,9 +5,10 @@ class TransactionObj {
       userId,
       accountId,
       category,
+      subcategory,
       date,
-      authorizedDate,
       name,
+      vendor,
       amount,
       pendingTransactionId
     ) {
@@ -15,9 +16,10 @@ class TransactionObj {
       this.userId = userId;
       this.accountId = accountId;
       this.category = category;
+      this.subcategory = subcategory;
       this.date = date;
-      this.authorizedDate = authorizedDate;
       this.name = name;
+      this.vendor = vendor;
       this.amount = amount;
       this.pendingTransactionId = pendingTransactionId;
     }
@@ -29,9 +31,10 @@ class TransactionObj {
         userId,
         txnObj.account_id,
         txnObj.personal_finance_category.primary,
+        txnObj.personal_finance_category.detailed,
         txnObj.date,
-        txnObj.authorized_date,
-        txnObj.merchant_name ?? txnObj.name,
+        txnObj.name,
+        txnObj.merchant_name,
         txnObj.amount,
         txnObj.pending_transaction_id
       )

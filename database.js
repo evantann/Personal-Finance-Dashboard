@@ -30,6 +30,8 @@ async function createTables() {
         account_id VARCHAR(255) NOT NULL,
         item_id VARCHAR(255) DEFAULT NULL,
         account_name VARCHAR(255) DEFAULT NULL,
+        subtype VARCHAR(255) DEFAULT NULL,
+        type VARCHAR(255) DEFAULT NULL,
         PRIMARY KEY (account_id))`;
 
     const createTransactionsTable = `CREATE TABLE IF NOT EXISTS transactions (
@@ -37,9 +39,10 @@ async function createTables() {
         user_id INT DEFAULT NULL,   
         account_id VARCHAR(255) DEFAULT NULL,
         category VARCHAR(255) DEFAULT NULL,
+        subcategory VARCHAR(255) DEFAULT NULL,
         date DATETIME DEFAULT NULL,
-        authorized_date DATETIME DEFAULT NULL,
         transaction_name VARCHAR(255) DEFAULT NULL,
+        vendor VARCHAR(255) DEFAULT NULL,
         amount FLOAT DEFAULT NULL,
         PRIMARY KEY (transaction_id))`;
 
@@ -73,23 +76,24 @@ async function addInstitutionForItem(item_id, institution) {
         [institution, item_id]);
 }
 
-async function addAccount(account_id, item_id, account_name) {
+async function addAccount(account_id, item_id, account_name, subtype, type) {
     pool.promise().query(
-        "INSERT INTO accounts(account_id, item_id, account_name) VALUES (?, ?, ?)",
-        [account_id, item_id, account_name]);
+        "INSERT INTO accounts(account_id, item_id, account_name, subtype, type) VALUES (?, ?, ?, ?, ?)",
+        [account_id, item_id, account_name, subtype, type]);
 }
 
 async function addTransaction(transactionObj) {
     pool.promise().query(
-        "INSERT IGNORE INTO transactions(transaction_id, user_id, account_id, category, date, authorized_date, transaction_name, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT IGNORE INTO transactions(transaction_id, user_id, account_id, category, subcategory, date, transaction_name, vendor, amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
             transactionObj.id,
             transactionObj.userId,
             transactionObj.accountId,
             transactionObj.category,
+            transactionObj.subcategory,
             transactionObj.date,
-            transactionObj.authorizedDate,
             transactionObj.name,
+            transactionObj.vendor,
             transactionObj.amount,
         ]
     );
@@ -97,13 +101,14 @@ async function addTransaction(transactionObj) {
 
 async function modifyTransaction(transactionObj) {
     return pool.promise().query(
-        "UPDATE transactions SET account_id = ?, category = ?, date = ?, authorized_date = ?, transaction_name = ?, amount = ? WHERE id = ?",
+        "UPDATE transactions SET account_id = ?, category = ?, subcategory = ?, date = ?, transaction_name = ?, vendor = ?, amount = ? WHERE id = ?",
         [
             transactionObj.accountId,
             transactionObj.category,
+            transactionObj.subcategory,
             transactionObj.date,
-            transactionObj.authorizedDate,
             transactionObj.name,
+            transactionObj.vendor,
             transactionObj.amount,
             transactionObj.id,
         ]

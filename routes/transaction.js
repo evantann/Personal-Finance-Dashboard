@@ -22,24 +22,36 @@ async function syncTransactions(item_id, user_id, access_token, transaction_curs
     const summary = { added: 0, removed: 0, modified: 0 };
     const allData = await fetchNewSyncData(access_token, transaction_cursor);
 
-    for (const txnObj of allData.added) {
+    await Promise.all(
+      allData.added.map(async (txnObj) => {
         const result = await db.addTransaction(
-            TransactionObj.createTransactionObject(txnObj, user_id)
+          TransactionObj.createTransactionObject(txnObj, user_id)
         );
-        if (result) summary.added += result.changes;
-    }
+        if (result) {
+          summary.added += result.changes;
+        }
+      })
+    );
 
-    for (const txnObj of allData.modified) {
+    await Promise.all(
+      allData.modified.map(async (txnObj) => {
         const result = await db.modifyTransaction(
-            TransactionObj.createTransactionObject(txnObj, user_id)
+          TransactionObj.createTransactionObject(txnObj, user_id)
         );
-        if (result) summary.modified += result.changes;
-    }
+        if (result) {
+          summary.modified += result.changes;
+        }
+      })
+    );
 
-    for (const txnObj of allData.removed) {
+    await Promise.all(
+      allData.removed.map(async (txnObj) => {
         const result = await db.deleteTransaction(txnObj.transaction_id);
-        if (result) summary.removed += result.changes;
-    }
+        if (result) {
+          summary.removed += result.changes;
+        }
+      })
+    );
 
     await db.updateCursor(allData.nextCursor, item_id);
     return summary;
