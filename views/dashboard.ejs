@@ -1,79 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Account Transactions</title>
-  </head>
-  <body>
-    <h1>Personal Finance Dashboard</h1>
-    <div id="vizContainer" style="width: 800px; height: 700px"></div>
-    <table class="transactions-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Category</th>
-          <th>Amount</th>
-          <th>Date</th>
-          <th>Account</th>
-        </tr>
-      </thead>
-      <tbody id="transactionsBody"></tbody>
-    </table>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Transactions</title>
+  <style>
+    label {
+      display: flex;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Personal Finance Dashboard</h1>
 
-    <script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
-    <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', () => {
-        initViz();
-        fetchTransactionData();
-      });
+  <h2>Set Budgets</h2>
+  <p>
+    Set budgets for each category to track your spending habits. The dashboard
+    will display your transactions and compare them to your budgets.
+  </p>
+  <form class="budgetForm" action="/budget/setBudget" method="POST" id="budgetForm">
+    <fieldset>
+      <legend>Categories</legend>
+      <label>
+        Food and Drink:
+        <input type="number" name="foodAndDrink" id="foodanddrink" min="0" />
+      </label>
+      <label>
+        Entertainment:
+        <input
+          type="number"
+          name="entertainment"
+          id="entertainment"
+          min="0"
+        />
+      </label>
+      <label>
+        General Merchandise:
+        <input
+          type="number"
+          name="generalMerchandise"
+          id="generalmerchandise"
+          min="0"
+        />
+      </label>
+      <label>
+        Personal Care:
+        <input type="number" name="personalCare" id="personalcare" min="0" />
+      </label>
+      <label>
+        General Services:
+        <input
+          type="number"
+          name="generalServices"
+          id="generalservices"
+          min="0"
+        />
+      </label>
+      <label>
+        Transportation:
+        <input
+          type="number"
+          name="transportation"
+          id="transportation"
+          min="0"
+        />
+      </label>
+      <label>
+        Travel:
+        <input type="number" name="travel" id="travel" min="0" />
+      </label>
+      <label>
+        Rent and Utilities:
+        <input
+          type="number"
+          name="rentAndUtilities"
+          id="rentandutilities"
+          min="0"
+        />
+      </label>
+    </fieldset>
+    <button type="submit">Save Budgets</button>
+  </form>
 
-      function initViz() {
-        const containerDiv = document.getElementById("vizContainer");
-        const url = "https://public.tableau.com/views/TransactionsData_17111573218990/Sheet1?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link";
-        const options = {
-          hideTabs: true,
-          onFirstInteractive: function () {
-            console.log("Viz has finished loading.");
-          },
-        };
+  <div
+    class="tableauPlaceholder"
+    id="viz1719872651200"
+    style="position: relative"
+  >
+    <noscript>
+      <a href="#">
+        <img
+          alt="Personal Expense Dashboard"
+          src="https://public.tableau.com/static/images/Pe/PersonalExpenseDashboard_17197230710280/PersonalExpenseDashboard/1_rss.png"
+          style="border: none"
+        />
+      </a>
+    </noscript>
+    <object class="tableauViz" style="display: none">
+      <param name="host_url" value="https%3A%2F%2Fpublic.tableau.com%2F" />
+      <param name="embed_code_version" value="3" />
+      <param name="site_root" value="" />
+      <param
+        name="name"
+        value="PersonalExpenseDashboard_17197230710280/PersonalExpenseDashboard"
+      />
+      <param name="tabs" value="no" />
+      <param name="toolbar" value="yes" />
+      <param
+        name="static_image"
+        value="https://public.tableau.com/static/images/Pe/PersonalExpenseDashboard_17197230710280/PersonalExpenseDashboard/1.png"
+      />
+      <param name="animate_transition" value="yes" />
+      <param name="display_static_image" value="yes" />
+      <param name="display_spinner" value="yes" />
+      <param name="display_overlay" value="yes" />
+      <param name="display_count" value="yes" />
+      <param name="language" value="en-US" />
+      <param name="filter" value="publish=yes" />
+    </object>
+  </div>
+  <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+      fetchTransactionData();
+      getBudgetData();
+    });
 
-        new tableau.Viz(containerDiv, url, options);
+    async function fetchTransactionData() {
+      try {
+        const response = await fetch("/transaction/transactionsSync");
+      } catch (error) {
+        console.error("Error fetching transaction data:", error);
       }
+    }
 
-      async function fetchTransactionData() {
-        try {
-          const response = await fetch("/transaction/transactionsSync");
-          const data = await response.json();
-          displayTransactions(data);
-        } catch (error) {
-          console.error("Error fetching transaction data:", error);
-        }
+    async function getBudgetData() {
+      try {
+        const response = await fetch("/budget/getBudget");
+        const budgetObj = await response.json();
+        Object.keys(budgetObj).forEach(key => {
+          console.log(key, budgetObj[key])
+          const input = document.getElementById(key);
+          if (budgetObj[key] !== null && budgetObj[key] !== '' && input)
+            input.value = budgetObj[key]
+        })
+      } catch (error) {
+        console.error("Error fetching budget data:", error);
       }
+    }
 
-      function displayTransactions(transactions) {
-        const tableBody = document.getElementById("transactionsBody");
-        tableBody.innerHTML = "";
-
-        transactions.forEach(({ name, category, amount, date }) => {
-          const row = document.createElement("tr");
-
-          row.appendChild(createCell(name));
-          row.appendChild(createCell(category));
-          row.appendChild(createCell(amount));
-          row.appendChild(createCell(date));
-
-          tableBody.appendChild(row);
+    document.getElementById('budgetForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      try {
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: new URLSearchParams(formData)
         });
+        if (response.ok) {
+          alert("Budgets saved successfully!");
+        } else {
+          console.error("Error saving budgets");
+        }
+      } catch (error) {
+        console.error("Error submitting form:", error);
       }
+    });
 
-      function createCell(content) {
-        const cell = document.createElement("td");
-        cell.textContent = content;
-        return cell;
-      }
-
-      
-    </script>
-  </body>
+    var divElement = document.getElementById("viz1719872651200");
+    var vizElement = divElement.getElementsByTagName("object")[0];
+    vizElement.style.width = "1016px";
+    vizElement.style.height = "991px";
+    var scriptElement = document.createElement("script");
+    scriptElement.src =
+      "https://public.tableau.com/javascripts/api/viz_v1.js";
+    vizElement.parentNode.insertBefore(scriptElement, vizElement);
+  </script>
+</body>
 </html>

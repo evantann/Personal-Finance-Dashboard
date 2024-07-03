@@ -46,10 +46,23 @@ async function createTables() {
         amount FLOAT DEFAULT NULL,
         PRIMARY KEY (transaction_id))`;
 
+    const createBudgetTable = `CREATE TABLE IF NOT EXISTS budgets (
+        user_id INT NOT NULL,
+        foodanddrink VARCHAR(255) DEFAULT NULL,
+        entertainment VARCHAR(255) DEFAULT NULL,
+        generalmerchandise VARCHAR(255) DEFAULT NULL,
+        personalcare VARCHAR(255) DEFAULT NULL,
+        generalservices VARCHAR(255) DEFAULT NULL,
+        transportation VARCHAR(255) DEFAULT NULL,
+        travel VARCHAR(255) DEFAULT NULL,
+        rentandutilities VARCHAR(255) DEFAULT NULL,
+        PRIMARY KEY (user_id))`
+
     await pool.promise().query(createUsersTable);
     await pool.promise().query(createItemsTable);
     await pool.promise().query(createAccountsTable);
     await pool.promise().query(createTransactionsTable);
+    await pool.promise().query(createBudgetTable);
 }
 
 async function getUserByUsername(username) {
@@ -128,6 +141,39 @@ async function getAllTransactions(user_id) {
     return pool.promise().query("SELECT * FROM transactions WHERE user_id = ?", [user_id]);
 }
 
+async function setBudget(user_id, foodAndDrink, entertainment, generalMerchandise, personalCare, generalServices, transportation, travel, rentAndUtilities) {
+    const query = `
+        INSERT INTO budgets(user_id, foodanddrink, entertainment, generalmerchandise, personalcare, generalservices, transportation, travel, rentandutilities)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            foodanddrink = VALUES(foodanddrink),
+            entertainment = VALUES(entertainment),
+            generalmerchandise = VALUES(generalmerchandise),
+            personalcare = VALUES(personalcare),
+            generalservices = VALUES(generalservices),
+            transportation = VALUES(transportation),
+            travel = VALUES(travel),
+            rentandutilities = VALUES(rentandutilities)`;
+
+    const values = [
+        user_id,
+        foodAndDrink,
+        entertainment,
+        generalMerchandise,
+        personalCare,
+        generalServices,
+        transportation,
+        travel,
+        rentAndUtilities
+    ];
+
+    await pool.promise().query(query, values);
+}
+
+async function getBudget(user_id) {
+    return pool.promise().query("SELECT * FROM budgets WHERE user_id = ? LIMIT 1", [user_id]);
+}
+
 createTables();
 
 module.exports = {
@@ -142,4 +188,6 @@ module.exports = {
     deleteTransaction,
     updateCursor,
     getAllTransactions,
+    setBudget,
+    getBudget
 };
